@@ -1,12 +1,14 @@
 ﻿#include"CommonFunc.h"
 #include"BaseObject.h"
 #include"Map.h"
+#include"Char.h"
 BaseObject g_background;
 SDL_Texture* grass = NULL;
 SDL_Texture* ground = NULL;
 SDL_Texture* tiletex[2] = { grass,ground };
 GameMap game_map;
-
+Map map1 = game_map.getMap();
+Char character;
 SDL_Texture* LoadTexture(std::string path) {
 	SDL_Surface* surface = IMG_Load(path.c_str());
 	if (surface == nullptr) {
@@ -78,15 +80,21 @@ bool running = false;
 void game() {
 	game_map.LoadMap("C:\\visual studio c++\\code\\sdl2\\TextFile1.txt");
 	game_map.LoadTiles(g_screen, tiletex);
+	character.setclips();
 	while (!running) {
 		while (SDL_PollEvent(&g_event) != 0) {
 			if (g_event.type == SDL_QUIT) {
 				running = true;
 			}
+			character.HandleInput(g_event, g_screen);
 		}
+		SDL_SetRenderDrawColor(g_screen, 0, 0, 0, 255);
 		SDL_RenderClear(g_screen);
 		g_background.Render(g_screen,NULL);
 		game_map.DrawMap(g_screen);
+		Map map1 = game_map.getMap();
+		character.DoPlayer(map1);
+		character.Show(g_screen);
 		SDL_RenderPresent(g_screen);
 	}
 	close();
@@ -101,6 +109,11 @@ int main(int argc, char* argv[]) {
 	if (LoadTextures() == false) {
 		return -1;
 	}
+	if (character.LoadImg("C:\\visual studio c++\\code\\sdl2\\grf\\char.png", g_screen) == false) {
+		cout << "Khong load duoc hinh ảnh char" << endl;
+		return -1;
+	}
+	
 	game();
 	return 0;
 }

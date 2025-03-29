@@ -19,6 +19,7 @@ void GameMap::LoadMap(const char* name) {
 				if (i > game_map.max_y) { game_map.max_y = i; }
 			}
 		}
+		
 	}
 	game_map.max_x = (game_map.max_x + 1) * TILE_SIZE;
 	game_map.max_y = (game_map.max_y + 1) * TILE_SIZE;

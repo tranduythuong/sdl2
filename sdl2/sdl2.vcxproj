@@ -134,11 +134,13 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="BaseObject.cpp" />
+    <ClCompile Include="Char.cpp" />
     <ClCompile Include="Map.cpp" />
     <ClCompile Include="sdl2.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BaseObject.h" />
+    <ClInclude Include="Char.h" />
     <ClInclude Include="CommonFunc.h" />
     <ClInclude Include="Map.h" />
   </ItemGroup>

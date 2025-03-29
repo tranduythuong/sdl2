@@ -24,6 +24,9 @@
     <ClCompile Include="Map.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Char.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CommonFunc.h">
@@ -33,6 +36,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Map.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Char.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

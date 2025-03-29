@@ -8,6 +8,10 @@ Char::Char() {
 	height_frame = 0;
 	status = -1;
 	frame = 0;
+	input_type.left = 0;
+	input_type.right = 0;
+	input_type.up = 0;
+	input_type.down = 0;
 }
 Char::~Char() {
 
@@ -31,7 +35,7 @@ bool Char::LoadImg(const string path, SDL_Renderer* des) {
 }
 void Char::Show(SDL_Renderer* des) {
 	
-	if (status == 1) {
+	if (input_type.right==1||input_type.left==1) {
 		
 		
 		frame++;
@@ -42,7 +46,7 @@ void Char::Show(SDL_Renderer* des) {
 	if (frame >= 4) {
 		frame = 0;
 	}
-	cout << frame << endl;
+	
 	rect.x = x_pos;
 	rect.y = y_pos;
 	SDL_Rect* clip = &frame_clip[frame];
@@ -55,20 +59,28 @@ void Char::HandleInput(SDL_Event& event, SDL_Renderer* des) {
 		case SDLK_RIGHT:
 		{
 			status = 1;
-			
+			input_type.right = 1;
+			input_type.left = 0;
 		}
 		break;
 		case SDLK_LEFT :
 		{
 			status = 1;
-			
+			input_type.left = 1;
+			input_type.right = 0;
 		}
 		break;
 		}
 	}
-	else {
-		status = -1;
-		frame = 0;
+	else if (event.type == SDL_KEYUP) {
+		switch (event.key.keysym.sym) {
+		case SDLK_RIGHT:
+			input_type.right = 0;
+			break;
+		case SDLK_LEFT:
+			input_type.left = 0;
+			break;
+		}
 	}
 }
 void Char::setclips() {
@@ -78,7 +90,94 @@ void Char::setclips() {
 			frame_clip[i].h = height_frame;
 			frame_clip[i].x = i * width_frame;
 			frame_clip[i].y = 0;
-			std::cout << "Frame " << i << ": " << frame_clip[i].x << ", " << frame_clip[i].y << std::endl;
+			
 		}
+	}
+}
+void Char::DoPlayer(Map& map) {
+	
+	y_val += FALL_SPEED;
+	
+	if (y_val >= MAX_FALL_SPEED) {
+		y_val = MAX_FALL_SPEED;
+	}
+	if (input_type.left == 1) {
+		x_val -= SPEED;
+
+	}
+	else if (input_type.right == 1) {
+		x_val += SPEED;
+	}
+	else {
+		x_val = 0;
+	}
+	
+	CheckMap(map);
+}
+void Char::CheckMap(Map& map) {
+	int x1 = 0;
+	int y1 = 0;
+	int x2 = 0;
+	int y2 = 0;
+	
+	int height_min = height_frame < TILE_SIZE ? height_frame : TILE_SIZE;
+	x1 = (x_pos + x_val) / TILE_SIZE;
+	x2 = (x_pos + x_val + width_frame - 1) / TILE_SIZE;
+	y1 = (y_pos ) / TILE_SIZE;
+	y2 = (y_pos + height_min-1) / TILE_SIZE;
+	if (x1 >= 0 && x2 <= MAX_MAP_X && y1 >= 0 && y2 <= MAX_MAP_Y) {
+		if (x_val > 0) {
+			if (map.data[y1][x2] != BLANK_TILE || map.data[y2][x2] != BLANK_TILE) {
+				x_pos = x2 * TILE_SIZE - width_frame -1;
+				x_val = 0;
+				
+				
+			}
+		}
+		else if(x_val<0){
+			if (map.data[y1][x1] != BLANK_TILE || map.data[y2][x1] != BLANK_TILE) {
+				x_pos = (x1 + 1) * TILE_SIZE;
+				x_val = 0;
+				
+			}
+		}
+	}
+
+	int width_min = width_frame < TILE_SIZE ? width_frame : TILE_SIZE;
+	x1 = (x_pos+1) / TILE_SIZE;
+	x2 = (x_pos + width_min-1) / TILE_SIZE;
+	
+	y1 = (y_pos + y_val) / TILE_SIZE;
+	y2 = (y_pos + y_val + height_frame - 1) / TILE_SIZE;
+	if (x1 >= 0 && x2 <= MAX_MAP_X && y1 >= 0 && y2 <= MAX_MAP_Y) {
+		if (y_val > 0) {
+			if (map.data[y2][x1]!=BLANK_TILE||map.data[y2][x2]!=BLANK_TILE) {
+				y_pos = y2 * TILE_SIZE - height_frame -1;
+				y_val = 0;
+				//cout << y2 << " " << x1 << " ";
+				//cout << "y2: " << y2 << " map.data[y2][x1]: " << map.data[y2][x1] << " map.data[y2][x2]: " << map.data[y2][x2]
+					//<< " map.data[y1][x1]: " << map.data[y1][x1] << " map.data[y1][x2]: " << map.data[y1][x2] << endl;
+				
+			}
+		}
+		else if(y_val<0){
+			if (map.data[y1][x1]!=BLANK_TILE||map.data[y1][x2]!=BLANK_TILE) {
+				y_pos = (y1 + 1) * TILE_SIZE;
+				y_val = 0;
+			}
+		}
+		
+	}
+	x_pos += x_val;
+	
+	y_pos += y_val;
+	if (x_pos < 0) {
+		x_pos = 0;
+	}
+	if (x_pos + width_frame >= SCREEN_WIDTH) {
+		x_pos = SCREEN_WIDTH - width_frame;
+	}
+	if (y_pos + height_frame >= SCREEN_HEIGHT) {
+		y_pos = SCREEN_HEIGHT - height_frame;
 	}
 }

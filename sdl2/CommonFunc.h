@@ -14,13 +14,8 @@ const int SCREEN_BPP = 32;
 #define TILE_SIZE 64 
 #define MAX_MAP_X 15
 #define MAX_MAP_Y 10
-struct Map {
-	int start_x;
-	int start_y;
-
-	int max_x;
-	int max_y;
-
-	int data[MAX_MAP_Y][MAX_MAP_X];
-	string file_name;
-};
+#define FALL_SPEED 1
+#define MAX_FALL_SPEED 10
+#define SPEED 5
+#define BLANK_TILE 0
+#define MAX_TILE 20
