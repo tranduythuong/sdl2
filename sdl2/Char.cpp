@@ -12,9 +12,22 @@ Char::Char() {
 	input_type.right = 0;
 	input_type.up = 0;
 	input_type.down = 0;
+	map_x = 0;
+	map_y = 0;
+	onGround = false;
+	level = 0;
 }
 Char::~Char() {
 
+}
+void Char::ChartoPortal(Portal& portal, int& level) {
+	if (x_pos + width_frame >= portal.getPosX() &&
+		x_pos <= portal.getPosX() + portal.getWidth() &&
+		y_pos + height_frame >= portal.getPosY() &&
+		y_pos <= portal.getPosY() + portal.getHeight())
+	{
+		level++;
+	}
 }
 
 bool Char::LoadImg(const string path, SDL_Renderer* des) {
@@ -28,9 +41,6 @@ bool Char::LoadImg(const string path, SDL_Renderer* des) {
 		height_frame = rect.h;
 
 	}
-	cout << rect.w << " " << rect.h << endl;
-	cout << width_frame << " " << height_frame << endl;
-	
 	return ret;
 }
 void Char::Show(SDL_Renderer* des) {
@@ -47,8 +57,8 @@ void Char::Show(SDL_Renderer* des) {
 		frame = 0;
 	}
 	
-	rect.x = x_pos;
-	rect.y = y_pos;
+	rect.x = x_pos - map_x;
+	rect.y = y_pos - map_y;
 	SDL_Rect* clip = &frame_clip[frame];
 	SDL_Rect renderQuad = { rect.x,rect.y,width_frame,height_frame };
 	SDL_RenderCopy(des, p_object, clip, &renderQuad);
@@ -63,12 +73,19 @@ void Char::HandleInput(SDL_Event& event, SDL_Renderer* des) {
 			input_type.left = 0;
 		}
 		break;
-		case SDLK_LEFT :
+		case SDLK_LEFT:
 		{
 			status = 1;
 			input_type.left = 1;
 			input_type.right = 0;
 		}
+		break;
+		case SDLK_UP:
+		{
+			status = 1;
+			input_type.up = 1;
+		}
+		
 		break;
 		}
 	}
@@ -80,9 +97,13 @@ void Char::HandleInput(SDL_Event& event, SDL_Renderer* des) {
 		case SDLK_LEFT:
 			input_type.left = 0;
 			break;
+		case SDLK_UP:
+			input_type.up = 0;
+			break;
 		}
 	}
 }
+
 void Char::setclips() {
 	if (width_frame > 0 && height_frame > 0) {
 		for (int i = 0; i < 5; i++) {
@@ -102,17 +123,36 @@ void Char::DoPlayer(Map& map) {
 		y_val = MAX_FALL_SPEED;
 	}
 	if (input_type.left == 1) {
-		x_val -= SPEED;
+		x_val =- SPEED;
 
 	}
 	else if (input_type.right == 1) {
-		x_val += SPEED;
+		x_val = SPEED;
 	}
 	else {
 		x_val = 0;
 	}
+	if (input_type.up == 1 && onGround == true) {
+		y_val = JUMP_SPEED;
+		onGround = false;
+	}
+	
 	
 	CheckMap(map);
+	CentreEntity(map);
+}
+void Char::CentreEntity(Map& map) {
+	map.start_x = x_pos - (SCREEN_WIDTH / 2);
+	if (map.start_x < 0) {
+		map.start_x = 0;
+
+	}
+	map.start_y = y_pos - (SCREEN_HEIGHT / 2);
+	if (map.start_y < 0) {
+		map.start_y = 0;
+	}
+	
+	
 }
 void Char::CheckMap(Map& map) {
 	int x1 = 0;
@@ -154,6 +194,7 @@ void Char::CheckMap(Map& map) {
 			if (map.data[y2][x1]!=BLANK_TILE||map.data[y2][x2]!=BLANK_TILE) {
 				y_pos = y2 * TILE_SIZE - height_frame -1;
 				y_val = 0;
+				onGround = true;
 				//cout << y2 << " " << x1 << " ";
 				//cout << "y2: " << y2 << " map.data[y2][x1]: " << map.data[y2][x1] << " map.data[y2][x2]: " << map.data[y2][x2]
 					//<< " map.data[y1][x1]: " << map.data[y1][x1] << " map.data[y1][x2]: " << map.data[y1][x2] << endl;
