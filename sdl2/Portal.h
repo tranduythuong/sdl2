@@ -13,13 +13,11 @@ public:
 	int getPosY() { return y_pos; }
 	int getWidth() { return width_frame; }
 	int getHeight() { return height_frame; }
-	void getPos() {
-		cout << x_pos << " P " << y_pos << endl;
-	}
+	
 private:
 	int x_pos;
 	int y_pos;
-	SDL_Rect frame_clip[4];
+	SDL_Rect frame_clip[PORTAL_FRAME_CLIPS];
 	int width_frame;
 	int height_frame;
 	int frame;

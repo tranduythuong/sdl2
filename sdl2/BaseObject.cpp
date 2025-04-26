@@ -1,13 +1,14 @@
 #include"BaseObject.h"
 using namespace std;
 const int speed = 10;
-BaseObject::BaseObject(){
+BaseObject::BaseObject() {
 	p_object = NULL;
 	rect.x = 0;
 	rect.y = 0;
 	rect.w = 0;
 	rect.h = 0;
-	 
+	xmove = 0;
+	ymove = 0;
 }
 BaseObject::~BaseObject(){
 	Free();
@@ -36,7 +37,7 @@ bool BaseObject::LoadImg(SDL_Texture* texture, SDL_Renderer* renderer) {
 	rect.w = src.w;
 	rect.h = src.h;
 	p_object = texture;
-	return texture != NULL;
+	return p_object != NULL;
 }
 void BaseObject::Render(SDL_Renderer* des_renderer,const SDL_Rect* clip) {
 	SDL_Rect rectquad = { rect.x,rect.y,rect.w,rect.h };

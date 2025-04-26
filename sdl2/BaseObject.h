@@ -6,7 +6,7 @@ class BaseObject {
 public:
 	BaseObject();
 	~BaseObject();
-	void SetRect(const int& x,const  int& y) {
+	void SetRect(const int &x,const  int &y) {
 		rect.x = x;
 		rect.y = y;
 	}

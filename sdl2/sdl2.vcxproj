@@ -136,13 +136,19 @@
     <ClCompile Include="BaseObject.cpp" />
     <ClCompile Include="Char.cpp" />
     <ClCompile Include="Map.cpp" />
+    <ClCompile Include="Portal.cpp" />
     <ClCompile Include="sdl2.cpp" />
+    <ClCompile Include="Monster.cpp" />
+    <ClCompile Include="Time.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BaseObject.h" />
     <ClInclude Include="Char.h" />
     <ClInclude Include="CommonFunc.h" />
     <ClInclude Include="Map.h" />
+    <ClInclude Include="Monster.h" />
+    <ClInclude Include="Portal.h" />
+    <ClInclude Include="Time.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

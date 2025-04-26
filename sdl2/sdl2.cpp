@@ -2,12 +2,19 @@
 #include"BaseObject.h"
 #include"Map.h"
 #include"Char.h"
+#include"Time.h"
+#include"Portal.h"
+#include"Monster.h"
+int maplevel = -1;
+int monsterlevel = -1;
 BaseObject g_background;
 SDL_Texture* grass = NULL;
 SDL_Texture* ground = NULL;
 SDL_Texture* tiletex[2] = { grass,ground };
 GameMap game_map;
-Map map1 = game_map.getMap();
+Portal portal;
+Time fps_time;
+Monster monster;
 Char character;
 SDL_Texture* LoadTexture(std::string path) {
 	SDL_Surface* surface = IMG_Load(path.c_str());
@@ -24,7 +31,7 @@ SDL_Texture* LoadTexture(std::string path) {
 }
 
 
- bool initData() {
+bool initData() {
 	bool success = true;
 	int ret = SDL_Init(SDL_INIT_VIDEO);
 	if (ret < 0) {
@@ -44,7 +51,7 @@ SDL_Texture* LoadTexture(std::string path) {
 			SDL_SetRenderDrawColor(g_screen, 255, 255, 255, 255);
 			int imgFlags = IMG_INIT_PNG;
 			if (!(IMG_Init(imgFlags) && imgFlags)) {
-				success= false;
+				success = false;
 			}
 		}
 	}
@@ -76,31 +83,57 @@ void close() {
 	SDL_Quit();
 }
 
-bool running = false;
+bool running = true;
 void game() {
-	game_map.LoadMap("C:\\visual studio c++\\code\\sdl2\\TextFile1.txt");
-	game_map.LoadTiles(g_screen, tiletex);
-	character.setclips();
-	while (!running) {
+	monster.set_clips();
+	character.set_clips();
+	portal.set_clips();	
+	while (running) {
+		fps_time.start();
 		while (SDL_PollEvent(&g_event) != 0) {
 			if (g_event.type == SDL_QUIT) {
-				running = true;
+				running = false;
 			}
 			character.HandleInput(g_event, g_screen);
 		}
+		if(maplevel!=character.getLevel()){
+			game_map.setMapLevel(character.getLevel());
+			game_map.LoadTiles(g_screen, tiletex);
+			maplevel++;
+		}
 		SDL_SetRenderDrawColor(g_screen, 0, 0, 0, 255);
 		SDL_RenderClear(g_screen);
-		g_background.Render(g_screen,NULL);
-		game_map.DrawMap(g_screen);
-		Map map1 = game_map.getMap();
+		g_background.Render(g_screen, NULL);
+		
+		Map  &map1 = game_map.getMap();
+
+		portal.setPos(character.getLevel());
+		portal.Show(g_screen);
+
+		character.ChartoPortal(portal, character.getLevel());
 		character.DoPlayer(map1);
-		character.Show(g_screen);
+	    character.Show(g_screen);
+		
+		if (monsterlevel != character.getLevel()) {
+			monster.SetPosLevel(character.getLevel());
+			monsterlevel++;
+		}
+		monster.MoveToCharacter(character.getPosX(), character.getPosY(), RADIAN_FIND_CHARACTER);
+		monster.ChecktoWin(running, character);
+		monster.Show(g_screen);
+		
+		game_map.DrawMap(g_screen);
 		SDL_RenderPresent(g_screen);
+		int real_time = fps_time.get_ticks();
+		int time_one_frame = 1000 / FRAME_PER_SECOND;
+		if (real_time < time_one_frame) {
+			SDL_Delay(time_one_frame - real_time);
+		}
 	}
 	close();
 }
 int main(int argc, char* argv[]) {
-	if (initData()==false) {
+	if (initData() == false) {
 		return -1;
 	}
 	if (LoadBackground() == false) {
@@ -113,7 +146,12 @@ int main(int argc, char* argv[]) {
 		cout << "Khong load duoc hinh ảnh char" << endl;
 		return -1;
 	}
-	
+	if (portal.LoadImg("C:\\visual studio c++\\code\\sdl2\\grf\\portal_4.png",g_screen) == false) {
+		return -1;
+	}
+	if (monster.LoadImg("C:\\visual studio c++\\code\\sdl2\\grf\\Ghosts.png", g_screen) == false) {
+		return -1;
+	}
 	game();
 	return 0;
 }

@@ -15,25 +15,26 @@ bool Portal::LoadImg(const string path, SDL_Renderer* des) {
 		cout << "Khong load duoc img portal" << endl;
 	}
 	else {
-		width_frame = rect.w / 5;
+		width_frame = rect.w / PORTAL_FRAME_CLIPS;
 		height_frame = rect.h;
 	}
-	cout << width_frame << "" << height_frame << endl;
+	
 	return ret;
 }
 void Portal::set_clips() {
-	if (width_frame > 0 && height_frame > 0) {}
-	for (int i = 0; i < 4; i++) {
-		frame_clip[i].x = i * width_frame;
-		frame_clip[i].y = 0;
-		frame_clip[i].w = width_frame;
-		frame_clip[i].h = height_frame;
+	if (width_frame > 0 && height_frame > 0) {
+		for (int i = 0; i < PORTAL_FRAME_CLIPS; i++) {
+			frame_clip[i].x = i * width_frame;
+			frame_clip[i].y = 0;
+			frame_clip[i].w = width_frame;
+			frame_clip[i].h = height_frame;
+		}
 	}
 }
 
 void Portal::Show(SDL_Renderer* des) {
 	frame++;
-	if (frame >= 4) {
+	if (frame >= PORTAL_FRAME_CLIPS) {
 		frame = 0;
 	}
 	rect.x = x_pos;

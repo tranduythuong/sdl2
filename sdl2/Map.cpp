@@ -63,3 +63,18 @@ void GameMap::DrawMap(SDL_Renderer* screen) {
 		map_y++;
 	}
 }
+void GameMap::setMapLevel(int level) {
+	string path;
+	switch (level) {
+	case 0:
+		path = "C:\\visual studio c++\\code\\sdl2\\TextFile1.txt";
+		break;
+	case 1:
+		path = "C:\\visual studio c++\\code\\sdl2\\text2.txt";
+		break;
+	default:
+		cout << "Level khong hop le" << endl;
+		return;
+	}
+	LoadMap(path.c_str());
+}

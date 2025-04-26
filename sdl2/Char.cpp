@@ -104,7 +104,7 @@ void Char::HandleInput(SDL_Event& event, SDL_Renderer* des) {
 	}
 }
 
-void Char::setclips() {
+void Char::set_clips() {
 	if (width_frame > 0 && height_frame > 0) {
 		for (int i = 0; i < 5; i++) {
 			frame_clip[i].w = width_frame;
@@ -139,7 +139,7 @@ void Char::DoPlayer(Map& map) {
 	
 	
 	CheckMap(map);
-	CentreEntity(map);
+	
 }
 void Char::CentreEntity(Map& map) {
 	map.start_x = x_pos - (SCREEN_WIDTH / 2);
@@ -195,9 +195,7 @@ void Char::CheckMap(Map& map) {
 				y_pos = y2 * TILE_SIZE - height_frame -1;
 				y_val = 0;
 				onGround = true;
-				//cout << y2 << " " << x1 << " ";
-				//cout << "y2: " << y2 << " map.data[y2][x1]: " << map.data[y2][x1] << " map.data[y2][x2]: " << map.data[y2][x2]
-					//<< " map.data[y1][x1]: " << map.data[y1][x1] << " map.data[y1][x2]: " << map.data[y1][x2] << endl;
+				
 				
 			}
 		}

@@ -23,16 +23,21 @@ public:
 	bool LoadImg(const string path, SDL_Renderer* des);
 	void Show(SDL_Renderer* des);
 	void HandleInput(SDL_Event& event,SDL_Renderer * des);
-	void setclips();
+	void set_clips();
 	void DoPlayer(Map& map);
 	void CheckMap(Map& map);
 	void CentreEntity(Map& map);
-	void setMapXY(const int& x, const int& y) {
-		map_x = x;
-		map_y = y;
+	int getWidth()const {
+		return width_frame;
 	}
-	void getPos() {
-		cout << x_pos << " " << y_pos << endl;
+	int getHeight()const {
+		return height_frame;
+	}
+	int getPosX()const  {
+		return x_pos;
+	}
+	int getPosY()const {
+		return y_pos;
 	}
 	int & getLevel() { 
 		return level; 
@@ -44,9 +49,9 @@ private:
 	int y_pos;
 	int width_frame;
 	int height_frame;
-	int frame = 0;
+	int frame ;
 	input input_type;
-	SDL_Rect frame_clip[23];
+	SDL_Rect frame_clip[CHAR_FRAME_CLIP];
 	int status;
 	int map_x;
 	int map_y;
