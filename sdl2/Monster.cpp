@@ -38,11 +38,11 @@ void Monster::set_clips() {
 			
 		}
 	}
-	cout << width_frame << " " << height_frame << endl;
+	
 }
 void Monster::Show(SDL_Renderer* des) {
     frame++;
-	if (frame >= 5) {
+	if (frame >= MONSTER_FRAME_CLIPS) {
 		frame = 0;
 	}
 
@@ -95,33 +95,33 @@ void Monster::MoveToCharacter(int charX, int charY,int detectionRange) {
 	y_pos += y_val;
 }
 
-void Monster::ChecktoWin(bool &gamerunning, const Char& character) {
-	int x1 = character.getPosX();
-	int y1 = character.getPosY();
-	int x2 = character.getWidth() + character.getPosX();
-	int y2 = character.getHeight() + character.getPosY();
-	if (x_val > 0) {
-		if ((x_pos + width_frame > x1) && (y_pos < y2 || y_pos + height_frame > y1)) {
-			gamerunning = false;
-		}
-	}
-	else {
-		if ((x_pos < x2) && (y_pos < y2 || y_pos + height_frame > y1)) {
-			gamerunning = false;
-		}
-	}
+void Monster::ChecktoWin(bool& gamerunning, const Char& character) {
+	int char_x1 = character.getPosX();
+	int char_y1 = character.getPosY();
+	int char_x2 = char_x1 + character.getWidth();
+	int char_y2 = char_y1 + character.getHeight();
+
+	int mon_x1 = x_pos;
+	int mon_y1 = y_pos;
+	int mon_x2 = mon_x1 + width_frame;
+	int mon_y2 = mon_y1 + height_frame;
+
+	
+	bool is_collision =
+		!(mon_x2 <= char_x1 || mon_x1 >= char_x2 ||
+			mon_y2 <= char_y1 || mon_y1 >= char_y2);
+
+	gamerunning = is_collision;
 }
-	void Monster::SetPosLevel(int level) {
-		if (level == 0) {
-			x_pos = SCREEN_WIDTH-2 * TILE_SIZE;
-			y_pos = SCREEN_HEIGHT-2 * TILE_SIZE;
-		}
-		if (level == 1) {
-			x_pos = 5 * TILE_SIZE;
-			y_pos = 5 * TILE_SIZE;
-		}
-		if (level == 2) {
-			x_pos = 7 * TILE_SIZE;
-			y_pos = 7 * TILE_SIZE;
-		}
-	}
+
+void Monster::SetPos() {
+	const int padding = 10;
+
+	int max_x = SCREEN_WIDTH - width_frame - padding;
+	int max_y = SCREEN_HEIGHT - height_frame - padding;
+
+	
+	x_pos = padding + rand() % (max_x - padding + 1);
+	y_pos = padding + rand() % (max_y - padding + 1);
+}
+

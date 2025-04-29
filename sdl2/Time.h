@@ -13,7 +13,14 @@ public:
 	
 	bool is_started();
 	bool is_paused();
-
+	void coutpause() {
+		if (is_pause == true) {
+			cout << "Paused" << endl;
+		}
+		else {
+			cout << "Unpaused" << endl;
+		}
+	}
 private:
 	int start_tick;
 	int paused_tick;

@@ -24,9 +24,13 @@ public:
 	void Show(SDL_Renderer* des);
 	void HandleInput(SDL_Event& event,SDL_Renderer * des);
 	void set_clips();
-	void DoPlayer(Map& map);
+	void DoPlayer(Map& map,Mix_Chunk *jump);
 	void CheckMap(Map& map);
 	void CentreEntity(Map& map);
+	void setPos(int x, int y) {
+		x_pos = x;
+		y_pos = y;
+	}
 	int getWidth()const {
 		return width_frame;
 	}
@@ -41,6 +45,9 @@ public:
 	}
 	int & getLevel() { 
 		return level; 
+	}
+	void setLevel(int level) {
+		this->level = level;
 	}
 private:
 	int x_val;
@@ -57,4 +64,5 @@ private:
 	int map_y;
 	bool onGround;
 	int level;
+	
 };

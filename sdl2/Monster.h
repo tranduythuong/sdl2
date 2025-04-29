@@ -13,7 +13,7 @@ public:
 	void MoveToCharacter(int charX, int charY,int detectionRange);
 	bool ChecktoCharacter(int charX, int charY, int detectionRange);
 	float CalculateDistance(int x1, int y1, int x2, int y2);
-	void SetPosLevel(int level);
+	void SetPos();
 	void ChecktoWin(bool& gamerunning,const Char &character);
 private:
 	int x_start;

@@ -11,7 +11,7 @@ Time::~Time() {
 }
 void Time::start() {
 	is_start = true;
-	is_pause = false;
+	
 	start_tick = SDL_GetTicks();
 }
 void Time::stop() {
@@ -20,13 +20,13 @@ void Time::stop() {
 }
 void Time::paused() {
 	if (is_start == true && is_pause == false) {
-		is_pause == true;
+		is_pause = true;
 		paused_tick = SDL_GetTicks() - start_tick;
 	}
 }
 void Time::unpaused() {
 	if (is_pause == true) {
-		is_pause == false;
+		is_pause = false;
 		start_tick = SDL_GetTicks() - paused_tick;
 		paused_tick = 0;
 	}

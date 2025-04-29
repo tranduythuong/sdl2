@@ -1,4 +1,5 @@
 #include"Char.h"
+
 Char::Char() {
 	x_val = 0;
 	y_val = 0;
@@ -18,7 +19,7 @@ Char::Char() {
 	level = 0;
 }
 Char::~Char() {
-
+	
 }
 void Char::ChartoPortal(Portal& portal, int& level) {
 	if (x_pos + width_frame >= portal.getPosX() &&
@@ -115,7 +116,8 @@ void Char::set_clips() {
 		}
 	}
 }
-void Char::DoPlayer(Map& map) {
+
+void Char::DoPlayer(Map& map,Mix_Chunk * jump) {
 	
 	y_val += FALL_SPEED;
 	
@@ -134,6 +136,10 @@ void Char::DoPlayer(Map& map) {
 	}
 	if (input_type.up == 1 && onGround == true) {
 		y_val = JUMP_SPEED;
+		if (!jump) {
+			SDL_Log("Failed to load jump sound: %s", Mix_GetError());
+		}
+		Mix_PlayChannel(-1, jump, 0);
 		onGround = false;
 	}
 	

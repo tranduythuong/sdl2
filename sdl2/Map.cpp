@@ -32,9 +32,6 @@ void GameMap::LoadTiles(SDL_Renderer* renderer,SDL_Texture * tiletex[]) {
 	
 	for (int i = 0; i < MAX_TILE; i++) {
 		bool load=tile_mat[i+1].LoadImg(tiletex[i ], renderer);
-		if (load == false) {
-			cout << "Khong load duoc tiletexture" << endl;
-		}
 	}
 }
 void GameMap::DrawMap(SDL_Renderer* screen) {
@@ -67,10 +64,10 @@ void GameMap::setMapLevel(int level) {
 	string path;
 	switch (level) {
 	case 0:
-		path = "C:\\visual studio c++\\code\\sdl2\\TextFile1.txt";
+		path = "text_map/text1.txt";
 		break;
 	case 1:
-		path = "C:\\visual studio c++\\code\\sdl2\\text2.txt";
+		path = "text_map/text2.txt";
 		break;
 	default:
 		cout << "Level khong hop le" << endl;

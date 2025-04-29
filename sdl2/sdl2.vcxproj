@@ -136,6 +136,7 @@
     <ClCompile Include="BaseObject.cpp" />
     <ClCompile Include="Char.cpp" />
     <ClCompile Include="Map.cpp" />
+    <ClCompile Include="MenuToButton.cpp" />
     <ClCompile Include="Portal.cpp" />
     <ClCompile Include="sdl2.cpp" />
     <ClCompile Include="Monster.cpp" />
@@ -146,6 +147,7 @@
     <ClInclude Include="Char.h" />
     <ClInclude Include="CommonFunc.h" />
     <ClInclude Include="Map.h" />
+    <ClInclude Include="MenuAndButton.h" />
     <ClInclude Include="Monster.h" />
     <ClInclude Include="Portal.h" />
     <ClInclude Include="Time.h" />
