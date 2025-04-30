@@ -146,6 +146,7 @@
     <ClInclude Include="BaseObject.h" />
     <ClInclude Include="Char.h" />
     <ClInclude Include="CommonFunc.h" />
+    <ClInclude Include="HighLevel.h" />
     <ClInclude Include="Map.h" />
     <ClInclude Include="MenuAndButton.h" />
     <ClInclude Include="Monster.h" />

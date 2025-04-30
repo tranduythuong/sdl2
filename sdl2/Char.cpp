@@ -16,7 +16,7 @@ Char::Char() {
 	map_x = 0;
 	map_y = 0;
 	onGround = false;
-	level = 0;
+	level = 1;
 }
 Char::~Char() {
 	
@@ -28,6 +28,9 @@ void Char::ChartoPortal(Portal& portal, int& level) {
 		y_pos <= portal.getPosY() + portal.getHeight())
 	{
 		level++;
+	}
+	if (level >= MAX_LEVEL) {
+		level = MAX_LEVEL;
 	}
 }
 
@@ -117,7 +120,7 @@ void Char::set_clips() {
 	}
 }
 
-void Char::DoPlayer(Map& map,Mix_Chunk * jump) {
+void Char::DoPlayer(Map& map,Mix_Chunk * jump,bool & character_fall) {
 	
 	y_val += FALL_SPEED;
 	
@@ -144,7 +147,7 @@ void Char::DoPlayer(Map& map,Mix_Chunk * jump) {
 	}
 	
 	
-	CheckMap(map);
+	CheckMap(map,character_fall);
 	
 }
 void Char::CentreEntity(Map& map) {
@@ -160,7 +163,7 @@ void Char::CentreEntity(Map& map) {
 	
 	
 }
-void Char::CheckMap(Map& map) {
+void Char::CheckMap(Map& map,bool &character_fall) {
 	int x1 = 0;
 	int y1 = 0;
 	int x2 = 0;
@@ -224,5 +227,6 @@ void Char::CheckMap(Map& map) {
 	}
 	if (y_pos + height_frame >= SCREEN_HEIGHT) {
 		y_pos = SCREEN_HEIGHT - height_frame;
+		character_fall = true;
 	}
 }

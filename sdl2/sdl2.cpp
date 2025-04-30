@@ -6,11 +6,12 @@
 #include"Portal.h"
 #include"Monster.h"
 #include"MenuAndButton.h"
-int maplevel = -1;
-int monsterlevel = -1;
+#include"HighLevel.h"
+int maplevel = 0;
+int monsterlevel = 0;
 bool monstertocharacter = false;
 bool running = true;
-bool game_start = false;
+bool quit_menu = false;
 BaseObject g_background;
 SDL_Texture* grass = NULL;
 SDL_Texture* ground = NULL;
@@ -24,8 +25,11 @@ Portal portal;
 Time fps_time;
 Monster monster;
 Char character;
+HighLevel highlevel;
 Mix_Chunk* jump_sound = NULL;
 Mix_Music* g_music = NULL;
+Mix_Chunk* mouse_click = NULL;
+bool character_fall = false;
 SDL_Texture* LoadTexture(std::string path) {
 	SDL_Surface* surface = IMG_Load(path.c_str());
 	if (surface == nullptr) {
@@ -65,14 +69,14 @@ bool initData() {
 			}
 		}
 	}
-	return success;
-}
-bool InitAudio() {
 	if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0) {
 		SDL_Log("Mix_OpenAudio failed: %s", Mix_GetError());
-		return false;
+		success = false;
 	}
-	return true;
+	if (TTF_Init() == -1) {
+		success = false;
+	}
+	return success;
 }
 bool LoadMedia() {
 	bool ret = true;
@@ -84,6 +88,11 @@ bool LoadMedia() {
 	g_music = Mix_LoadMUS("sound/ChiptuneAdventure.mp3");
 	if (g_music == NULL) {
 		SDL_Log("Failed to load music: %s", Mix_GetError());
+		ret = false;
+	}
+	mouse_click = Mix_LoadWAV("sound/sound_mouse_click.wav");
+	if (mouse_click == NULL) {
+		SDL_Log("Failed to load mouse click sound: %s", Mix_GetError());
 		ret = false;
 	}
 	return ret;
@@ -136,58 +145,56 @@ void close() {
 	IMG_Quit();
 	SDL_Quit();
 	Mix_CloseAudio();
-	Mix_Quit();  
-
+	Mix_Quit(); 
+	TTF_Quit();
 }
 void ResetGame() {
 	monstertocharacter = false;
-	maplevel = -1;
-	monsterlevel = -1;
+	character_fall = false;
+	maplevel = 0;
+	monsterlevel = 0;
 	character.setPos(0, 0);
-	character.setLevel(0);
+	character.setLevel(1);
 	monster.SetPos();
 	game_map.setMapLevel(0);
 	game_map.LoadTiles(g_screen, tiletex);
 	fps_time.start();
-}
-void showMenu() {
-	bool inMenu = true;
-
-	while (inMenu) {
-		while (SDL_PollEvent(&g_event) != 0) {
-			if (g_event.type == SDL_QUIT) {
-				running = false;
-				inMenu = false;
-				return;
-				if (play_button.HandleMouseEvent(g_event)) {
-					inMenu = false;
-				}
-			}
-
-
-			SDL_SetRenderDrawColor(g_screen, 0, 0, 0, 255);
-			SDL_RenderClear(g_screen);
-			menu_background.Render(g_screen, NULL);
-			play_button.Show(g_screen);
-			SDL_RenderPresent(g_screen);
-		}
-	}
 }
 void game() {
 	monster.set_clips();
 	character.set_clips();
 	portal.set_clips();
 	Mix_PlayMusic(g_music, -1);
+	while (!quit_menu) {
+		SDL_Event e_event;
+		menu_background.Render(g_screen, NULL);
+		play_button.Show(g_screen);
+		SDL_RenderPresent(g_screen);
+		while (SDL_PollEvent(&e_event) != 0) {
+			if (e_event.type == SDL_QUIT || play_button.HandleMouseEvent(e_event,mouse_click)) {
+				quit_menu = true;
+			}
+		}
+	}
 	while (running) {
+		highlevel.readHighScore("highscore.txt");
+		TTF_Font* font_small = TTF_OpenFont("font.ttf", 24);
 		fps_time.start();
 		while (SDL_PollEvent(&g_event) != 0) {
 			if (g_event.type == SDL_QUIT) {
 				running = false;
 			}
-			if (pause_button.HandleMouseEvent(g_event)) {
+			if (pause_button.HandleMouseEvent(g_event,mouse_click)) {
 				if (!fps_time.is_paused()) {
 					fps_time.paused();
 					pause_button.Show(g_screen);
+					reverse_button.Show(g_screen);
+					if (reverse_button.HandleMouseEvent(g_event, mouse_click)) {
+						if (fps_time.is_paused()) {
+							fps_time.unpaused();
+							ResetGame();
+						}
+					}
 					SDL_RenderPresent(g_screen);
 				}
 				else {
@@ -195,7 +202,7 @@ void game() {
 				}
 			}
 			
-		    if(reverse_button.HandleMouseEvent(g_event)) {
+		    if(reverse_button.HandleMouseEvent(g_event,mouse_click)) {
 			    if (fps_time.is_paused()) {
 					fps_time.unpaused(); 
 					ResetGame();
@@ -204,8 +211,8 @@ void game() {
 			
 			character.HandleInput(g_event, g_screen);
 		}
-		
-		if (monstertocharacter) {
+	
+		if (monstertocharacter||character_fall) {
 			fps_time.paused();
 			reverse_button.Show(g_screen);
 			SDL_RenderPresent(g_screen);
@@ -225,7 +232,7 @@ void game() {
 			portal.Show(g_screen);
 
 			character.ChartoPortal(portal, character.getLevel());
-			character.DoPlayer(map1,jump_sound);
+			character.DoPlayer(map1,jump_sound,character_fall);
 			character.Show(g_screen);
 
 			if (monsterlevel != character.getLevel()) {
@@ -241,6 +248,11 @@ void game() {
 				game_map.LoadTiles(g_screen, tiletex);
 				maplevel++;
 			}
+
+			highlevel.updateCurrent_Score(character.getLevel());
+			highlevel.saveHighScore("highscore.txt");
+			highlevel.renderScores(g_screen,font_small);
+
 			game_map.DrawMap(g_screen);
 			SDL_RenderPresent(g_screen);
 			int real_time = fps_time.get_ticks();
@@ -252,13 +264,10 @@ void game() {
 	}
 	close();
 }
+	
 int main(int argc, char* argv[]) {
 	if (initData() == false) {
 		cout << "Failed to initialize SDL" << endl;
-		return -1;
-	}
-	if(InitAudio() == false) {
-		cout << "Failed to initialize audio" << endl;
 		return -1;
 	}	
 	if (LoadMedia() == false) {
@@ -290,7 +299,6 @@ int main(int argc, char* argv[]) {
 		return -1;
 	}
 	srand(time(0));
-	showMenu();
 	game();
 	return 0;
 }

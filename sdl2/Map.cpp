@@ -63,11 +63,14 @@ void GameMap::DrawMap(SDL_Renderer* screen) {
 void GameMap::setMapLevel(int level) {
 	string path;
 	switch (level) {
-	case 0:
+	case 1:
 		path = "text_map/text1.txt";
 		break;
-	case 1:
+	case 2:
 		path = "text_map/text2.txt";
+		break;
+	case 3:
+		path = "text_map/text3.txt";
 		break;
 	default:
 		cout << "Level khong hop le" << endl;

@@ -12,6 +12,7 @@ const int SCREEN_WIDTH = 960;
 const int SCREEN_HEIGHT = 640;
 const int SCREEN_BPP = 32;
 const int FRAME_PER_SECOND = 60;
+#define MAX_LEVEL 3
 #define RADIAN_FIND_CHARACTER 300
 #define MONSTER_SPEED 2
 #define CHAR_FRAME_CLIP 23

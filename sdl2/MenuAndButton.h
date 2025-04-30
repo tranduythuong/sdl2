@@ -10,7 +10,7 @@ public:
 	int getHeight() { return rect.h; }
 	void Show(SDL_Renderer* des);
 	bool LoadImg(const string path, SDL_Renderer* des);
-	bool HandleMouseEvent(SDL_Event& event);
+	bool HandleMouseEvent(SDL_Event& event,Mix_Chunk *mouse_click);
 private:
 	int x_pos;
 	int y_pos;

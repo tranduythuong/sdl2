@@ -24,8 +24,8 @@ public:
 	void Show(SDL_Renderer* des);
 	void HandleInput(SDL_Event& event,SDL_Renderer * des);
 	void set_clips();
-	void DoPlayer(Map& map,Mix_Chunk *jump);
-	void CheckMap(Map& map);
+	void DoPlayer(Map& map,Mix_Chunk *jump,bool & game_running);
+	void CheckMap(Map& map,bool& game_running);
 	void CentreEntity(Map& map);
 	void setPos(int x, int y) {
 		x_pos = x;

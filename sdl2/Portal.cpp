@@ -44,15 +44,15 @@ void Portal::Show(SDL_Renderer* des) {
 	SDL_RenderCopy(des, p_object, clip, &renderQuad);
 }
 void Portal::setPos(int& level) {
-	if (level == 0) {
+	if (level == 1) {
 		x_pos = 14*TILE_SIZE;
 		y_pos = 7*TILE_SIZE;
 	}
-	if(level==1){
+	if(level==2){
 		x_pos = 10 * TILE_SIZE;
 		y_pos = 7 * TILE_SIZE;
 	}
-	if (level == 2) {
+	if (level == 3) {
 		x_pos = 7 * TILE_SIZE;
 		y_pos = 5 * TILE_SIZE;
 	}
