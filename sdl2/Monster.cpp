@@ -40,10 +40,30 @@ void Monster::set_clips() {
 	}
 	
 }
+void Monster::BullettoMonster(bool& bullettoMonster, Bullet * bullet) {
+	if (!bullettoMonster) {
+		int char_x1 = bullet->GetRect().x;	
+		int char_y1 = bullet->GetRect().y;
+		int char_x2 = char_x1 + bullet->GetRect().w;
+		int char_y2 = char_y1 + bullet->GetRect().h;
+		int mon_x1 = x_pos;
+		int mon_y1 = y_pos;
+		int mon_x2 = mon_x1 + width_frame;
+		int mon_y2 = mon_y1 + height_frame;
+		bool is_collision =
+			!(mon_x2 <= char_x1 || mon_x1 >= char_x2 ||
+				mon_y2 <= char_y1 || mon_y1 >= char_y2);
+		bullettoMonster = is_collision;
+	}
+}
 void Monster::Show(SDL_Renderer* des) {
     frame++;
 	if (frame >= MONSTER_FRAME_CLIPS) {
 		frame = 0;
+	}
+	if (p_object == nullptr) {
+		SDL_Log("Monster texture is null. Did you load the image?");
+		return;
 	}
 
 	rect.x = x_pos ;
@@ -96,22 +116,26 @@ void Monster::MoveToCharacter(int charX, int charY,int detectionRange) {
 }
 
 void Monster::ChecktoWin(bool& gamerunning, const Char& character) {
-	int char_x1 = character.getPosX();
-	int char_y1 = character.getPosY();
-	int char_x2 = char_x1 + character.getWidth();
-	int char_y2 = char_y1 + character.getHeight();
+	if (!gamerunning) {
 
-	int mon_x1 = x_pos;
-	int mon_y1 = y_pos;
-	int mon_x2 = mon_x1 + width_frame;
-	int mon_y2 = mon_y1 + height_frame;
 
-	
-	bool is_collision =
-		!(mon_x2 <= char_x1 || mon_x1 >= char_x2 ||
-			mon_y2 <= char_y1 || mon_y1 >= char_y2);
+		int char_x1 = character.getPosX();
+		int char_y1 = character.getPosY();
+		int char_x2 = char_x1 + character.getWidth();
+		int char_y2 = char_y1 + character.getHeight();
 
-	gamerunning = is_collision;
+		int mon_x1 = x_pos;
+		int mon_y1 = y_pos;
+		int mon_x2 = mon_x1 + width_frame;
+		int mon_y2 = mon_y1 + height_frame;
+
+
+		bool is_collision =
+			!(mon_x2 <= char_x1 || mon_x1 >= char_x2 ||
+				mon_y2 <= char_y1 || mon_y1 >= char_y2);
+
+		gamerunning = is_collision;
+	}
 }
 
 void Monster::SetPos() {

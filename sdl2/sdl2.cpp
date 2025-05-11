@@ -7,9 +7,11 @@
 #include"Monster.h"
 #include"MenuAndButton.h"
 #include"HighLevel.h"
+#include"Bullet.h"
+Uint32 TIME_SPAWN = 3000;
 int maplevel = 0;
-int monsterlevel = 0;
 bool monstertocharacter = false;
+bool bullet_to_monster = false;
 bool running = true;
 bool quit_menu = false;
 BaseObject g_background;
@@ -23,7 +25,7 @@ BaseObject menu_background;
 GameMap game_map;
 Portal portal;
 Time fps_time;
-Monster monster;
+vector<unique_ptr<Monster>> monster_list;
 Char character;
 HighLevel highlevel;
 Mix_Chunk* jump_sound = NULL;
@@ -151,19 +153,17 @@ void close() {
 void ResetGame() {
 	monstertocharacter = false;
 	character_fall = false;
+	bullet_to_monster = false;
+	TIME_SPAWN = 3000;
 	maplevel = 0;
-	monsterlevel = 0;
 	character.setPos(0, 0);
 	character.setLevel(1);
-	monster.SetPos();
 	game_map.setMapLevel(0);
 	game_map.LoadTiles(g_screen, tiletex);
 	fps_time.start();
+	monster_list.clear();
 }
 void game() {
-	monster.set_clips();
-	character.set_clips();
-	portal.set_clips();
 	Mix_PlayMusic(g_music, -1);
 	while (!quit_menu) {
 		SDL_Event e_event;
@@ -171,11 +171,12 @@ void game() {
 		play_button.Show(g_screen);
 		SDL_RenderPresent(g_screen);
 		while (SDL_PollEvent(&e_event) != 0) {
-			if (e_event.type == SDL_QUIT || play_button.HandleMouseEvent(e_event,mouse_click)) {
+			if (e_event.type == SDL_QUIT || play_button.HandleMouseEvent(e_event, mouse_click)) {
 				quit_menu = true;
 			}
 		}
 	}
+	Uint32 last_time_spawn = 0;
 	while (running) {
 		highlevel.readHighScore("highscore.txt");
 		TTF_Font* font_small = TTF_OpenFont("font.ttf", 24);
@@ -184,7 +185,7 @@ void game() {
 			if (g_event.type == SDL_QUIT) {
 				running = false;
 			}
-			if (pause_button.HandleMouseEvent(g_event,mouse_click)) {
+			if (pause_button.HandleMouseEvent(g_event, mouse_click)) {
 				if (!fps_time.is_paused()) {
 					fps_time.paused();
 					pause_button.Show(g_screen);
@@ -201,18 +202,18 @@ void game() {
 					fps_time.unpaused();
 				}
 			}
-			
-		    if(reverse_button.HandleMouseEvent(g_event,mouse_click)) {
-			    if (fps_time.is_paused()) {
-					fps_time.unpaused(); 
+
+			if (reverse_button.HandleMouseEvent(g_event, mouse_click)) {
+				if (fps_time.is_paused()) {
+					fps_time.unpaused();
 					ResetGame();
 				}
 			}
 			
 			character.HandleInput(g_event, g_screen);
 		}
-	
-		if (monstertocharacter||character_fall) {
+		
+		if (monstertocharacter || character_fall) {
 			fps_time.paused();
 			reverse_button.Show(g_screen);
 			SDL_RenderPresent(g_screen);
@@ -220,47 +221,71 @@ void game() {
 		if (fps_time.is_paused()) {
 			continue;
 		}
-			SDL_SetRenderDrawColor(g_screen, 0, 0, 0, 255);
-			SDL_RenderClear(g_screen);
-			g_background.Render(g_screen, NULL);
+		SDL_SetRenderDrawColor(g_screen, 0, 0, 0, 255);
+		SDL_RenderClear(g_screen);
+		g_background.Render(g_screen, NULL);
 
-			Map& map1 = game_map.getMap();
+		Map& map1 = game_map.getMap();
 
-			pause_button.Show(g_screen);
+		pause_button.Show(g_screen);
 
-			portal.setPos(character.getLevel());
-			portal.Show(g_screen);
+		portal.set_clips();
+		portal.setPos(character.getLevel());
+		portal.Show(g_screen);
 
-			character.ChartoPortal(portal, character.getLevel());
-			character.DoPlayer(map1,jump_sound,character_fall);
-			character.Show(g_screen);
+		character.HandleBullet(g_screen);
+		character.set_clips();
+		character.ChartoPortal(portal, character.getLevel(),TIME_SPAWN);
+		character.DoPlayer(map1, jump_sound, character_fall);
+		character.Show(g_screen);
 
-			if (monsterlevel != character.getLevel()) {
-				monster.SetPos();
-				monsterlevel++;
+		auto bullet_list = character.get_bullet_list();
+
+		Uint32 current_time = SDL_GetTicks();
+		if (current_time >=last_time_spawn + TIME_SPAWN) {
+			auto new_monster = make_unique<Monster>();	
+			new_monster->LoadImg("grf/Ghosts.png", g_screen);
+			new_monster->set_clips();
+			new_monster->SetPos();
+			monster_list.push_back(move(new_monster));
+			last_time_spawn = current_time;
+		}
+		for (int i = 0; i < monster_list.size();++i) {
+			Monster* new_monster = monster_list.at(i).get();
+			new_monster->MoveToCharacter(character.getPosX(), character.getPosY(), RADIAN_FIND_CHARACTER);
+			new_monster->ChecktoWin(monstertocharacter, character);
+			new_monster->Show(g_screen);
+			for (int j = 0; j < bullet_list.size();++j) {
+				Bullet* bullet = bullet_list.at(j);
+				if (bullet != NULL) {
+					new_monster->BullettoMonster(bullet_to_monster, bullet);
+				}
+				if (bullet_to_monster) {
+					character.RemoveBullet(j);
+					new_monster->Free();
+					monster_list.erase(monster_list.begin() + i);
+					bullet_to_monster = false;
+				}
 			}
-			monster.MoveToCharacter(character.getPosX(), character.getPosY(), RADIAN_FIND_CHARACTER);
-			monster.ChecktoWin(monstertocharacter, character);
-			monster.Show(g_screen);
+		}
+		if (maplevel != character.getLevel()) {
+			game_map.setMapLevel(character.getLevel());
+			game_map.LoadTiles(g_screen, tiletex);
+			maplevel++;
+		}
 
-			if (maplevel != character.getLevel()) {
-				game_map.setMapLevel(character.getLevel());
-				game_map.LoadTiles(g_screen, tiletex);
-				maplevel++;
-			}
+		highlevel.updateCurrent_Score(character.getLevel());
+		highlevel.saveHighScore("highscore.txt");
+		highlevel.renderScores(g_screen, font_small);
 
-			highlevel.updateCurrent_Score(character.getLevel());
-			highlevel.saveHighScore("highscore.txt");
-			highlevel.renderScores(g_screen,font_small);
+		game_map.DrawMap(g_screen);
+		SDL_RenderPresent(g_screen);
+		int real_time = fps_time.get_ticks();
+		int time_one_frame = 1000 / FRAME_PER_SECOND;
+		if (real_time < time_one_frame) {
+			SDL_Delay(time_one_frame - real_time);
+		}
 
-			game_map.DrawMap(g_screen);
-			SDL_RenderPresent(g_screen);
-			int real_time = fps_time.get_ticks();
-			int time_one_frame = 1000 / FRAME_PER_SECOND;
-			if (real_time < time_one_frame) {
-				SDL_Delay(time_one_frame - real_time);
-			}
-		
 	}
 	close();
 }
@@ -288,10 +313,6 @@ int main(int argc, char* argv[]) {
 	}
 	if (portal.LoadImg("grf/portal_4.png",g_screen) == false) {
 		cout << "Failed to load portal image" << endl;
-		return -1;
-	}
-	if (monster.LoadImg("grf/Ghosts.png", g_screen) == false) {
-		cout << "Failed to load monster image" << endl;
 		return -1;
 	}
 	if (LoadButton() == false) {

@@ -21,13 +21,14 @@ Char::Char() {
 Char::~Char() {
 	
 }
-void Char::ChartoPortal(Portal& portal, int& level) {
+void Char::ChartoPortal(Portal& portal, int& level,Uint32 & time_spawn) {
 	if (x_pos + width_frame >= portal.getPosX() &&
 		x_pos <= portal.getPosX() + portal.getWidth() &&
 		y_pos + height_frame >= portal.getPosY() &&
 		y_pos <= portal.getPosY() + portal.getHeight())
 	{
 		level++;
+		time_spawn /= 2;
 	}
 	if (level >= MAX_LEVEL) {
 		level = MAX_LEVEL;
@@ -106,8 +107,47 @@ void Char::HandleInput(SDL_Event& event, SDL_Renderer* des) {
 			break;
 		}
 	}
+	if (event.type == SDL_MOUSEBUTTONDOWN) {
+		if (event.button.button == SDL_BUTTON_RIGHT) {
+			Bullet *bullet = new Bullet();
+			bullet->LoadImg("grf/waterball.png", des);
+			bullet->SetRect(x_pos + width_frame / 2, y_pos + height_frame / 2);
+			bullet->AngleBullet(x_pos, y_pos, event);
+			bullet->set_is_move(true);
+			bullet_list.push_back(bullet);	
+		}
+	}
 }
-
+void Char::HandleBullet(SDL_Renderer* des) {
+	for (int i = 0; i < bullet_list.size(); i++) {
+		Bullet* bullet = bullet_list.at(i);
+		if (bullet != NULL) {
+			if (bullet->get_is_move() == true) {
+				bullet->HandleMove(SCREEN_WIDTH, SCREEN_HEIGHT);
+				bullet->Render(des);
+			}
+			else {
+				bullet_list.erase(bullet_list.begin() + i);
+				if (bullet != NULL) {
+					delete bullet;
+					bullet = NULL;
+				}
+			}
+		}
+	}
+}
+void Char::RemoveBullet(const int& index) {
+	int size = bullet_list.size();
+	if (size > 0 && index < size) {
+		Bullet* bullet = bullet_list.at(index);
+		bullet_list.erase(bullet_list.begin() + index);
+		if (bullet != NULL) {
+			delete bullet;
+			bullet = NULL;
+		}
+			
+	}
+}
 void Char::set_clips() {
 	if (width_frame > 0 && height_frame > 0) {
 		for (int i = 0; i < 5; i++) {
@@ -171,13 +211,13 @@ void Char::CheckMap(Map& map,bool &character_fall) {
 	
 	int height_min = height_frame < TILE_SIZE ? height_frame : TILE_SIZE;
 	x1 = (x_pos + x_val) / TILE_SIZE;
-	x2 = (x_pos + x_val + width_frame - 1) / TILE_SIZE;
+	x2 = (x_pos + x_val + width_frame ) / TILE_SIZE;
 	y1 = (y_pos ) / TILE_SIZE;
 	y2 = (y_pos + height_min-1) / TILE_SIZE;
 	if (x1 >= 0 && x2 <= MAX_MAP_X && y1 >= 0 && y2 <= MAX_MAP_Y) {
 		if (x_val > 0) {
 			if (map.data[y1][x2] != BLANK_TILE || map.data[y2][x2] != BLANK_TILE) {
-				x_pos = x2 * TILE_SIZE - width_frame -1;
+				x_pos = x2 * TILE_SIZE - width_frame ;
 				x_val = 0;
 				
 				
@@ -185,7 +225,7 @@ void Char::CheckMap(Map& map,bool &character_fall) {
 		}
 		else if(x_val<0){
 			if (map.data[y1][x1] != BLANK_TILE || map.data[y2][x1] != BLANK_TILE) {
-				x_pos = (x1 + 1) * TILE_SIZE;
+				x_pos = (x1 +1) * TILE_SIZE;
 				x_val = 0;
 				
 			}
@@ -197,11 +237,11 @@ void Char::CheckMap(Map& map,bool &character_fall) {
 	x2 = (x_pos + width_min-1) / TILE_SIZE;
 	
 	y1 = (y_pos + y_val) / TILE_SIZE;
-	y2 = (y_pos + y_val + height_frame - 1) / TILE_SIZE;
+	y2 = (y_pos + y_val + height_frame ) / TILE_SIZE;
 	if (x1 >= 0 && x2 <= MAX_MAP_X && y1 >= 0 && y2 <= MAX_MAP_Y) {
 		if (y_val > 0) {
 			if (map.data[y2][x1]!=BLANK_TILE||map.data[y2][x2]!=BLANK_TILE) {
-				y_pos = y2 * TILE_SIZE - height_frame -1;
+				y_pos = y2 * TILE_SIZE - height_frame ;
 				y_val = 0;
 				onGround = true;
 				

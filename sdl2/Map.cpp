@@ -72,6 +72,9 @@ void GameMap::setMapLevel(int level) {
 	case 3:
 		path = "text_map/text3.txt";
 		break;
+	case 4:
+		path = "text_map/text4.txt";
+		break;
 	default:
 		cout << "Level khong hop le" << endl;
 		return;

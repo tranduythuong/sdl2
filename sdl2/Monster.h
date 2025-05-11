@@ -11,9 +11,14 @@ public:
 	void set_clips();
 	void Show(SDL_Renderer* des);
 	void MoveToCharacter(int charX, int charY,int detectionRange);
+	void BullettoMonster(bool& bullettoMonster, Bullet* bullet);
 	bool ChecktoCharacter(int charX, int charY, int detectionRange);
 	float CalculateDistance(int x1, int y1, int x2, int y2);
 	void SetPos();
+	int getPosX() { return x_pos; }
+	int getPosY() { return y_pos; }
+	int getWidth() { return width_frame; }
+	int getHeight() { return height_frame; }
 	void ChecktoWin(bool& gamerunning,const Char &character);
 private:
 	int x_start;

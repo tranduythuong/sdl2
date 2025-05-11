@@ -56,5 +56,9 @@ void Portal::setPos(int& level) {
 		x_pos = 7 * TILE_SIZE;
 		y_pos = 5 * TILE_SIZE;
 	}
+	if(level==4){
+		x_pos = 7 * TILE_SIZE;	
+		y_pos = 0;
+	}
 	
 }
