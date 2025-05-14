@@ -71,38 +71,39 @@ void Char::Show(SDL_Renderer* des) {
 void Char::HandleInput(SDL_Event& event, SDL_Renderer* des) {
 	if (event.type == SDL_KEYDOWN) {
 		switch (event.key.keysym.sym) {
-		case SDLK_RIGHT:
+		case SDLK_d:
 		{
 			status = 1;
 			input_type.right = 1;
 			input_type.left = 0;
 		}
 		break;
-		case SDLK_LEFT:
+		case SDLK_a:
 		{
 			status = 1;
 			input_type.left = 1;
 			input_type.right = 0;
 		}
 		break;
-		case SDLK_UP:
+		case SDLK_w:
 		{
 			status = 1;
 			input_type.up = 1;
 		}
-		
+
 		break;
+
 		}
 	}
 	else if (event.type == SDL_KEYUP) {
 		switch (event.key.keysym.sym) {
-		case SDLK_RIGHT:
+		case SDLK_d:
 			input_type.right = 0;
 			break;
-		case SDLK_LEFT:
+		case SDLK_a:
 			input_type.left = 0;
 			break;
-		case SDLK_UP:
+		case SDLK_w:
 			input_type.up = 0;
 			break;
 		}

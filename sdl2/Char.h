@@ -4,6 +4,7 @@
 #include"Map.h"
 #include"Portal.h"
 #include"Bullet.h"
+#include"Time.h"
 struct input {
 	int right;
 	int left;
@@ -25,6 +26,7 @@ public:
 	void Show(SDL_Renderer* des);
 	void HandleInput(SDL_Event& event,SDL_Renderer * des);
 	void HandleBullet(SDL_Renderer* des);	
+	void HandleSheild(SDL_Renderer* des, Uint32& time);
 	void RemoveBullet(const int& index);
 	void set_clips();
 	void DoPlayer(Map& map,Mix_Chunk *jump,bool & game_running);

@@ -24,6 +24,23 @@ bool MenuAndButton::HandleMouseEvent(SDL_Event& event,Mix_Chunk* mouse_click) {
 		if (x >= x_pos && x <= x_pos + rect.w && y >= y_pos && y <= y_pos+ rect.h) {
 			return true;
 		}
+		else {
+			return false;
+		}
     }
+	return false;
+}
+bool MenuAndButton::HandleOut(SDL_Event& event, Mix_Chunk* mouse_click) {
+	if (event.type == SDL_MOUSEBUTTONDOWN) {
+		Mix_PlayChannel(-1, mouse_click, 0);
+		int x = event.button.x;
+		int y = event.button.y;
+		if (x <= x_pos || x >= x_pos + rect.w || y <= y_pos || y >= y_pos + rect.h) {
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
 	return false;
 }

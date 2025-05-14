@@ -8,19 +8,26 @@
 #include"MenuAndButton.h"
 #include"HighLevel.h"
 #include"Bullet.h"
+#include"Menu.h"
 Uint32 TIME_SPAWN = 3000;
 int maplevel = 0;
 bool monstertocharacter = false;
 bool bullet_to_monster = false;
 bool running = true;
 bool quit_menu = false;
+bool tutorial_menu = false;
+bool quit_menu_panel = false;
+bool menu_panel_show = false;
 BaseObject g_background;
 SDL_Texture* grass = NULL;
 SDL_Texture* ground = NULL;
 SDL_Texture* tiletex[2] = { grass,ground };
 MenuAndButton reverse_button;
 MenuAndButton pause_button;
-MenuAndButton play_button;
+MenuAndButton menu_panel;
+Menu play;
+Menu tutorial;
+Menu tutorial_text_menu;
 BaseObject menu_background;
 GameMap game_map;
 Portal portal;
@@ -113,11 +120,11 @@ bool LoadButton() {
 	else {
 		pause_button.setPos(0, 0);
 	}
-	if (!play_button.LoadImg("grf/play_button.png", g_screen)) {
+	if (!menu_panel.LoadImg("grf/menu_panel.png", g_screen)) {
 		ret = false;
 	}
 	else {
-		play_button.setPos(SCREEN_WIDTH / 2 - play_button.getWidth() / 2, SCREEN_HEIGHT / 2 - play_button.getHeight() / 2);
+		menu_panel.setPos(SCREEN_WIDTH / 2 - menu_panel.getWidth() / 2, SCREEN_HEIGHT / 2 - menu_panel.getHeight() / 2);
 	}
 	return ret;
 }
@@ -165,21 +172,52 @@ void ResetGame() {
 }
 void game() {
 	Mix_PlayMusic(g_music, -1);
+	play.set_text("Play");
+	tutorial.set_text("Tutorial");
+	TTF_Font* font_small = TTF_OpenFont("font.ttf", 24);
+	TTF_Font* font_large = TTF_OpenFont("font.ttf", 72);
+	vector<string>tutorial_text = {
+		"1. Dung W A D de di chuyen",
+		"2. Bam chuot phai de ban"
+		
+	};
 	while (!quit_menu) {
 		SDL_Event e_event;
 		menu_background.Render(g_screen, NULL);
-		play_button.Show(g_screen);
-		SDL_RenderPresent(g_screen);
+		if (!tutorial_menu) {
+			play.RenderText(SCREEN_WIDTH / 2 - play.getWidth() / 2, SCREEN_HEIGHT / 2 - play.getHeight() / 2, g_screen, font_large);
+			tutorial.RenderText(SCREEN_WIDTH / 2 - tutorial.getWidth() / 2, SCREEN_HEIGHT / 2 + play.getHeight() + 10, g_screen, font_large);
+		}
 		while (SDL_PollEvent(&e_event) != 0) {
-			if (e_event.type == SDL_QUIT || play_button.HandleMouseEvent(e_event, mouse_click)) {
+			if (e_event.type == SDL_QUIT || play.HandleMenu(e_event, mouse_click)) {
 				quit_menu = true;
 			}
+			if (tutorial.HandleMenu(e_event, mouse_click)) {
+				tutorial_menu = true;
+			}
+			if (menu_panel.HandleOut(e_event, mouse_click)&&menu_panel_show) {
+				quit_menu_panel = true;
+			}
 		}
+		if (tutorial_menu) {
+			menu_panel.Show(g_screen);
+			menu_panel_show = true;
+			for (int i = 0; i < tutorial_text.size(); ++i) {
+				tutorial_text_menu.set_text(tutorial_text[i]);
+				tutorial_text_menu.RenderText(SCREEN_WIDTH / 2 - menu_panel.getWidth() / 2+10+i,
+					SCREEN_HEIGHT / 2 - menu_panel.getHeight() / 2 + 20+50 *i , g_screen, font_small);
+			}
+		}
+		if (quit_menu_panel) {
+			tutorial_menu = false;
+			menu_panel_show = false;
+			quit_menu_panel = false;
+		}
+	    SDL_RenderPresent(g_screen);
 	}
-	Uint32 last_time_spawn = 0;
+	Uint32 last_time_spawn_monster = 0;
 	while (running) {
 		highlevel.readHighScore("highscore.txt");
-		TTF_Font* font_small = TTF_OpenFont("font.ttf", 24);
 		fps_time.start();
 		while (SDL_PollEvent(&g_event) != 0) {
 			if (g_event.type == SDL_QUIT) {
@@ -212,7 +250,7 @@ void game() {
 			
 			character.HandleInput(g_event, g_screen);
 		}
-		
+
 		if (monstertocharacter || character_fall) {
 			fps_time.paused();
 			reverse_button.Show(g_screen);
@@ -228,7 +266,7 @@ void game() {
 		Map& map1 = game_map.getMap();
 
 		pause_button.Show(g_screen);
-
+		
 		portal.set_clips();
 		portal.setPos(character.getLevel());
 		portal.Show(g_screen);
@@ -241,14 +279,14 @@ void game() {
 
 		auto bullet_list = character.get_bullet_list();
 
-		Uint32 current_time = SDL_GetTicks();
-		if (current_time >=last_time_spawn + TIME_SPAWN) {
+		Uint32 current_time_monster = SDL_GetTicks();
+		if (current_time_monster >=last_time_spawn_monster + TIME_SPAWN) {
 			auto new_monster = make_unique<Monster>();	
 			new_monster->LoadImg("grf/Ghosts.png", g_screen);
 			new_monster->set_clips();
 			new_monster->SetPos();
 			monster_list.push_back(move(new_monster));
-			last_time_spawn = current_time;
+			last_time_spawn_monster = current_time_monster;
 		}
 		for (int i = 0; i < monster_list.size();++i) {
 			Monster* new_monster = monster_list.at(i).get();
@@ -279,6 +317,7 @@ void game() {
 		highlevel.renderScores(g_screen, font_small);
 
 		game_map.DrawMap(g_screen);
+
 		SDL_RenderPresent(g_screen);
 		int real_time = fps_time.get_ticks();
 		int time_one_frame = 1000 / FRAME_PER_SECOND;

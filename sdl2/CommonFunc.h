@@ -12,7 +12,7 @@ const int SCREEN_WIDTH = 960;
 const int SCREEN_HEIGHT = 640;
 const int SCREEN_BPP = 32;
 const int FRAME_PER_SECOND = 60;
-
+const Uint32 TIME_SKILL = 5000;
 #define BULLET_SPEED 20
 #define MAX_LEVEL 4
 #define RADIAN_FIND_CHARACTER 500

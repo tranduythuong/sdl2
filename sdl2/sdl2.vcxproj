@@ -142,6 +142,7 @@
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\visual studio c++\SDL2_ttf-2.24.0\include;C:\visual studio c++\SDL2_mixer-2.8.1\include;C:\visual studio c++\SDL2_image-2.8.5\include;C:\visual studio c++\SDL2-2.28.5\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <ClCompile Include="Map.cpp" />
+    <ClCompile Include="Menu.cpp" />
     <ClCompile Include="MenuToButton.cpp" />
     <ClCompile Include="Portal.cpp" />
     <ClCompile Include="sdl2.cpp" />
@@ -155,6 +156,7 @@
     <ClInclude Include="CommonFunc.h" />
     <ClInclude Include="HighLevel.h" />
     <ClInclude Include="Map.h" />
+    <ClInclude Include="Menu.h" />
     <ClInclude Include="MenuAndButton.h" />
     <ClInclude Include="Monster.h" />
     <ClInclude Include="Portal.h" />
